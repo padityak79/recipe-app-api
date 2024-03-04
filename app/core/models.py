@@ -28,8 +28,8 @@ class UserManager(BaseUserManager):
             raise ValueError('user must have an email address')
         user = self.model(email=self.normalize_email(email), **extra_field)
         user.set_password(password)
-        user.is_superuser=True
-        user.is_staff=True
+        user.is_superuser = True
+        user.is_staff = True
         user.save(using=self._db)
 
         return user
