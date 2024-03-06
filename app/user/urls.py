@@ -3,11 +3,12 @@ Urls for the User Service/App.
 """
 
 from django.urls import path
-from user.views import CreateUserView
+from user.views import CreateUserView, AuthTokenView
 
 
 app_name = 'user'
 
 urlpatterns = [
-    path('create/', CreateUserView.as_view(), name='create')
+    path('create/', CreateUserView.as_view(), name='create'),
+    path('token/', AuthTokenView.as_view(), name='token'),
 ]

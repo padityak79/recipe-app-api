@@ -10,6 +10,7 @@ from django.urls import reverse
 
 
 CREATE_USER_URL = reverse('user:create')
+TOKEN_URL = reverse('user:token')
 
 
 def create_user(**params):
@@ -65,3 +66,50 @@ class PublicUserAPITests(TestCase):
             email=payload['email']
         ).exists()
         self.assertFalse(user_exists)
+
+    def test_create_user_token_success(self):
+        """Test valid token creation request"""
+        user_details = {
+            'email': 'testuser@example.com',
+            'password': 'testpass123',
+            'name': 'Test User'
+        }
+        create_user(**user_details)
+        payload = {
+            'email': user_details['email'],
+            'password': user_details['password']
+        }
+        response = self.client.post(TOKEN_URL, payload)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('token', response.data)
+
+    def test_create_user_token_with_bad_credentials(self):
+        """Test create user token request with bad credentials"""
+        user_details = {
+            'email': 'testuser@example.com',
+            'password': 'testpass123',
+            'name': 'Test User'
+        }
+        create_user(**user_details)
+        response = self.client.post(TOKEN_URL, {
+            'email': 'testuser@example.com',
+            'password': 'pass123',
+        })
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_create_user_token_with_empty_password(self):
+        """Test create user token request with empty password"""
+        user_details = {
+            'email': 'testuser@example.com',
+            'password': 'testpass123',
+            'name': 'Test User'
+        }
+        create_user(**user_details)
+        response = self.client.post(TOKEN_URL, {
+            'email': 'testuser@example.com',
+            'password': '',
+        })
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
