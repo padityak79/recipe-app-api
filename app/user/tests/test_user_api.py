@@ -11,6 +11,7 @@ from django.urls import reverse
 
 CREATE_USER_URL = reverse('user:create')
 TOKEN_URL = reverse('user:token')
+ME_URL = reverse('user:me')
 
 
 def create_user(**params):
@@ -113,3 +114,54 @@ class PublicUserAPITests(TestCase):
         })
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_retrieve_user_unauthorized(self):
+        """Test retrieve user unauthorized."""
+        response = self.client.get(ME_URL)
+
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+
+class PrivateUserAPITests(TestCase):
+    """Test the private functionalities of User API."""
+
+    def setUp(self):
+        self.user_details = {
+            'email': 'testuser@example.com',
+            'password': 'testpass123',
+            'name': 'Test User'
+        }
+        self.user = create_user(**self.user_details)
+        self.client = APIClient()
+        self.client.force_authenticate(self.user)
+
+    def test_retrieve_user_authorized(self):
+        """Test retrieve user authorized."""
+        response = self.client.get(ME_URL)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, {
+            'email': self.user_details['email'],
+            'name': self.user_details['name']
+        })
+
+    def test_post_in_retrieve_user_error(self):
+        """Test POST action in retrieve user error."""
+        response = self.client.post(ME_URL, {})
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_405_METHOD_NOT_ALLOWED
+        )
+
+    def test_user_details_update_successful(self):
+        """Test PATCH action to update user details."""
+        payload = {
+            'name': 'Test User',
+            'password': 'pass123'
+        }
+        response = self.client.patch(ME_URL, payload)
+        self.user.refresh_from_db()
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(self.user.name, payload['name'])
+        self.assertTrue(self.user.check_password(payload['password']))
