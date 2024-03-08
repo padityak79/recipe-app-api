@@ -16,7 +16,7 @@ from rest_framework import status
 from rest_framework.test import APIClient
 
 
-RECIPES_LIST = reverse('recipe:recipe-list')
+RECIPES_URL = reverse('recipe:recipe-list')
 
 
 def detail_url(recipe_id):
@@ -48,7 +48,7 @@ class PublicRecipeAPITests(TestCase):
 
     def test_list_recipe_unauthorized_access(self):
         """test unauthorized access of the list recipes."""
-        response = self.client.get(RECIPES_LIST)
+        response = self.client.get(RECIPES_URL)
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
@@ -69,7 +69,7 @@ class PrivateRecipeAPITests(TestCase):
         create_recipe(self.user)
         create_recipe(self.user)
 
-        response = self.client.get(RECIPES_LIST)
+        response = self.client.get(RECIPES_URL)
         recipes = Recipe.objects.all().order_by('-id')
         recipeSerailizer = RecipeSerializer(recipes, many=True)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -84,7 +84,7 @@ class PrivateRecipeAPITests(TestCase):
         create_recipe(new_user)
         create_recipe(self.user)
 
-        response = self.client.get(RECIPES_LIST)
+        response = self.client.get(RECIPES_URL)
         recipes = Recipe.objects.filter(user=self.user)
         recipeSerializer = RecipeSerializer(recipes, many=True)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -99,3 +99,18 @@ class PrivateRecipeAPITests(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, detailSerializer.data)
+
+    def test_create_recipe(self):
+        payload = {
+            'title': 'Test Recipe',
+            'time_minutes': 10,
+            'price': Decimal('12.0')
+        }
+
+        response = self.client.post(RECIPES_URL)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        recipe = Recipe.objects.get(id = response.data['id'])
+
+        for k, v in payload.items():
+            self.assertEqual(v, getattr(recipe, k))
