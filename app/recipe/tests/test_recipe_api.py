@@ -146,11 +146,11 @@ class PrivateRecipeAPITests(TestCase):
         """test full update of the recipe object."""
         recipe = create_recipe(
             user=self.user,
-            title = 'Sample Recipe',
-            time_minutes = 10,
-            price = Decimal('15.0'),
-            description = 'Sample Recipe Description.',
-            link = 'http://example.com/sample_recipe.pdf'
+            title='Sample Recipe',
+            time_minutes=10,
+            price=Decimal('15.0'),
+            description='Sample Recipe Description.',
+            link='http://example.com/sample_recipe.pdf'
         )
 
         payload = {
@@ -174,19 +174,22 @@ class PrivateRecipeAPITests(TestCase):
         """Test changing the user of the recipe returns error."""
         recipe = create_recipe(
             user=self.user,
-            title = 'Sample Recipe',
-            time_minutes = 10,
-            price = Decimal('15.0'),
-            description = 'Sample Recipe Description.',
-            link = 'http://example.com/sample_recipe.pdf'
+            title='Sample Recipe',
+            time_minutes=10,
+            price=Decimal('15.0'),
+            description='Sample Recipe Description.',
+            link='http://example.com/sample_recipe.pdf'
         )
 
-        new_user = create_user(email='test_user1@example.com', password='testpassword123')
+        new_user = create_user(
+            email='test_user1@example.com',
+            password='testpassword123'
+        )
 
         url = detail_url(recipe.id)
 
         payload = {'user': new_user}
-        response = self.client.patch(url, payload)
+        _ = self.client.patch(url, payload)
 
         recipe.refresh_from_db()
 
@@ -196,11 +199,11 @@ class PrivateRecipeAPITests(TestCase):
         """Test deleting a recipe successful."""
         recipe = create_recipe(
             user=self.user,
-            title = 'Sample Recipe',
-            time_minutes = 10,
-            price = Decimal('15.0'),
-            description = 'Sample Recipe Description.',
-            link = 'http://example.com/sample_recipe.pdf'
+            title='Sample Recipe',
+            time_minutes=10,
+            price=Decimal('15.0'),
+            description='Sample Recipe Description.',
+            link='http://example.com/sample_recipe.pdf'
         )
 
         url = detail_url(recipe.id)
@@ -212,14 +215,17 @@ class PrivateRecipeAPITests(TestCase):
 
     def test_recipe_other_users_recipe_error(self):
         """Test trying to delete another users recipe gives error."""
-        new_user = create_user(email='test_user1@example.com', password='testpassword123')
+        new_user = create_user(
+            email='test_user1@example.com',
+            password='testpassword123'
+        )
         recipe = create_recipe(
             user=new_user,
-            title = 'Sample Recipe',
-            time_minutes = 10,
-            price = Decimal('15.0'),
-            description = 'Sample Recipe Description.',
-            link = 'http://example.com/sample_recipe.pdf'
+            title='Sample Recipe',
+            time_minutes=10,
+            price=Decimal('15.0'),
+            description='Sample Recipe Description.',
+            link='http://example.com/sample_recipe.pdf'
         )
 
         url = detail_url(recipe.id)
