@@ -80,8 +80,8 @@ class PrivateRecipeAPITests(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, recipeSerailizer.data)
 
-    def test_list_recipe_for_authorized_user(self):
-        """Test list of recipes is limited to authencated user."""
+    def test_list_recipe_for_authenticated_user(self):
+        """Test list of recipes is limited to authenticated user."""
         new_user = create_user(
             email='new_user@example.com',
             password='new_user123'
