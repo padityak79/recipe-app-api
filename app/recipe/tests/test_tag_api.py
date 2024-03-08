@@ -11,10 +11,10 @@ from django.urls import reverse
 from recipe.serializers import TagSerializer
 
 from rest_framework import status
-from rest_framework.tests import APICLient
+from rest_framework.test import APIClient
 
 
-TAGS_URL = reverse('tag:tag-list')
+TAGS_URL = reverse('recipe:tag-list')
 
 
 def create_user(email='testuser@example.com', password='userpass123'):
@@ -25,7 +25,7 @@ def create_user(email='testuser@example.com', password='userpass123'):
 class PrivateTagAPITests(TestCase):
     """Test unauthenticated API requests."""
     def setUp(self):
-        self.client = APICLient()
+        self.client = APIClient()
 
     def test_auth_required(self):
         """Test auth is required for retrieving tags."""
@@ -36,7 +36,7 @@ class PrivateTagAPITests(TestCase):
 class PublicTagAPITests(TestCase):
     """Test authenticated API requests."""
     def setUp(self):
-        self.client = APICLient()
+        self.client = APIClient()
         self.user = create_user()
         self.client.force_authenticate(self.user)
 
@@ -62,7 +62,7 @@ class PublicTagAPITests(TestCase):
 
         response = self.client.get(TAGS_URL)
 
-        tags = Tag.objects.filter(user = self.user)
+        tags = Tag.objects.filter(user=self.user)
 
         tagSerializer = TagSerializer(tags, many=True)
 
