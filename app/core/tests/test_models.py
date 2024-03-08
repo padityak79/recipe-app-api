@@ -2,10 +2,15 @@
 Test for models.
 """
 
-from core.models import Recipe
+from core.models import Recipe, Tag
 from decimal import Decimal
 from django.test import TestCase
 from django.contrib.auth import get_user_model
+
+
+def create_user(email="test_user@example.com", password="testpass123"):
+    """create and return a user."""
+    return get_user_model().objects.create_user(email, password)
 
 
 class ModelTests(TestCase):
@@ -14,7 +19,7 @@ class ModelTests(TestCase):
         """Test creating an user with email successful"""
         email = "test@example.com"
         password = "test123"
-        user = get_user_model().objects.create_user(
+        user = create_user(
             email=email,
             password=password,
         )
@@ -31,13 +36,13 @@ class ModelTests(TestCase):
             ['test4@example.COM', 'test4@example.com'],
         ]
         for email, expected in sample_emails:
-            user = get_user_model().objects.create_user(email, 'sample123')
+            user = create_user(email, 'sample123')
             self.assertEqual(user.email, expected)
 
     def test_new_user_with_blank_email_exception(self):
         """Test exception creating a new user with email"""
         with self.assertRaises(ValueError):
-            get_user_model().objects.create_user(
+            create_user(
                 email='',
                 password='sample123'
             )
@@ -54,7 +59,7 @@ class ModelTests(TestCase):
 
     def test_create_new_recipe_successful(self):
         """Test create new recipe by user."""
-        user = get_user_model().objects.create_user(
+        user = create_user(
             email="testuser@example.com",
             password="testpass123"
         )
@@ -67,3 +72,13 @@ class ModelTests(TestCase):
             description='Sample Recipe Description.'
         )
         self.assertEqual(str(recipe), recipe.title)
+
+    def test_create_tag(self):
+        """Test create new tag"""
+        user = create_user()
+        tag = Tag.objects.create(
+            user=user,
+            name='Tag1'
+        )
+
+        self.assertEqual(str(tag), tag.name)
