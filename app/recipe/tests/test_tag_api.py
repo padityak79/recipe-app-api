@@ -17,6 +17,11 @@ from rest_framework.test import APIClient
 TAGS_URL = reverse('recipe:tag-list')
 
 
+def detail_url(tagId):
+    """return url to retrieve recipe_detail for a recipe id."""
+    return reverse('recipe:tag-detail', args=[tagId])
+
+
 def create_user(email='testuser@example.com', password='userpass123'):
     """create and return a user object"""
     return get_user_model().objects.create_user(email, password)
@@ -68,3 +73,15 @@ class PublicTagAPITests(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, tagSerializer.data)
+
+    def test_update_tags(self):
+        """Test update of tag object."""
+        tag = Tag.objects.create(user=self.user, name='After Dinner')
+        payload = {'name': 'Dessert'}
+
+        url = detail_url(tag.id)
+        response = self.client.patch(url, payload)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        tag.refresh_from_db()
+        self.assertEqual(payload['name'], tag.name)
