@@ -2,7 +2,11 @@
 Test for models.
 """
 
-from core.models import Recipe, Tag
+from core.models import (
+    Recipe,
+    Tag,
+    Ingredient,
+)
 from decimal import Decimal
 from django.test import TestCase
 from django.contrib.auth import get_user_model
@@ -82,3 +86,13 @@ class ModelTests(TestCase):
         )
 
         self.assertEqual(str(tag), tag.name)
+
+    def test_create_ingredient(self):
+        """Test create a new ingredient."""
+        user = create_user()
+        ingredient = Ingredient.objects.create(
+            user=user,
+            name='Sample Ingredient',
+        )
+
+        self.assertEqual(str(ingredient), ingredient.name)
